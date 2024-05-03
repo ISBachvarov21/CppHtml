@@ -21,7 +21,7 @@ int main() {
     h1.SetText("Hello, World!");
     p.SetText("This is a paragraph.");
 
-    std::cout << html.ToString(true) << std::endl;
+    std::cout << html;
 
     std::cin >> std::ws;
 

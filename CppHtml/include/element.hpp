@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -7,9 +8,47 @@ namespace CppHtml {
     public:
         Element(const std::string& tag) : tag(tag) {}
 
+        Element* GetParent() {
+            return parent;
+        }
+
         Element* AddChild(Element* child) {
             children.push_back(child);
             return this;
+        }
+
+        Element* AddChildren(const std::vector<Element*>& children) {
+            this->children.insert(this->children.end(), children.begin(), children.end());
+            return this;
+        }
+
+        Element* SetTag(const std::string& tag) {
+            this->tag = tag;
+            return this;
+        }
+
+        Element* GetChild(int index) {
+            return children[index];
+        }
+
+        std::vector<Element*> GetChildren() {
+            return children;
+        }
+
+        std::string GetTag() {
+            return tag;
+        }
+
+        std::string GetText() {
+            return text;
+        }
+
+        std::string GetAttribute(const std::string& attr) {
+            return attributes[attr];
+        }
+
+        std::unordered_map<std::string, std::string> GetAttributes() {
+            return attributes;
         }
 
         Element* SetAttribute(const std::string& attr, const std::string& value) {
@@ -39,6 +78,7 @@ namespace CppHtml {
 
         std::string ToString() {
             std::string result = "<" + tag;
+
             for (const auto& [key, val] : attributes) {
                 if (val.empty()) {
                     result += " " + key;
@@ -47,13 +87,17 @@ namespace CppHtml {
 
                 result += " " + key + "=\"" + val + "\"";
             }
+
             result += ">";
+
             if (!text.empty()) {
                 result += text;
             }
+
             for (Element* child : children) {
                 result += child->ToString();
             }
+
             result += "</" + tag + ">";
             return result;
         }
@@ -66,6 +110,7 @@ namespace CppHtml {
             int indentLevel = 0;
 
             std::string result = std::string(indentLevel, ' ') + "<" + tag;
+
             for (const auto& [key, val] : attributes) {
                 if (val.empty()) {
                     result += " " + key;
@@ -84,6 +129,7 @@ namespace CppHtml {
             for (Element* child : children) {
                 result += "\n" + child->ToString(indent, indentLevel + 4);
             }
+
             result += "\n" + std::string(indentLevel, ' ') + "</" + tag + ">";
             return result;
         }
@@ -94,6 +140,7 @@ namespace CppHtml {
             }
 
             std::string result = std::string(indentLevel, ' ') + "<" + tag;
+
             for (const auto& [key, val] : attributes) {
                 if (val.empty()) {
                     result += " " + key;
@@ -112,6 +159,7 @@ namespace CppHtml {
             for (Element* child : children) {
                 result += "\n" + child->ToString(indent, indentLevel + 4);
             }
+
             result += "\n" + std::string(indentLevel, ' ') + "</" + tag + ">";
             return result;
         }
@@ -121,5 +169,19 @@ namespace CppHtml {
         std::string text;
         std::unordered_map<std::string, std::string> attributes;
         std::vector<Element*> children;
+        Element* parent;
     };
 };
+
+std::string operator<<(std::string str, CppHtml::Element element) {
+    return str + element.ToString();
+}
+
+std::ostream& operator<<(std::ostream& os, CppHtml::Element element) {
+    os << element.ToString();
+    return os;
+}
+
+std::string operator<<(CppHtml::Element element, int indentLevel) {
+    return element.ToString(true, indentLevel);
+}
